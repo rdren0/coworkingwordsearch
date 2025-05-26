@@ -72,6 +72,53 @@ function App() {
     return positions;
   }, []);
 
+  const findIntersectionOpportunities = useCallback(
+    (grid, word) => {
+      const opportunities = [];
+      const upperWord = word.toUpperCase();
+
+      // Look for existing letters that match letters in our word
+      for (let row = 0; row < gridSize; row++) {
+        for (let col = 0; col < gridSize; col++) {
+          const existingLetter = grid[row][col];
+          if (existingLetter === "") continue; // Skip empty cells
+
+          // Check each letter in our word for a match
+          for (
+            let letterIndex = 0;
+            letterIndex < upperWord.length;
+            letterIndex++
+          ) {
+            if (upperWord[letterIndex] === existingLetter) {
+              // Found a matching letter, try each direction
+              DIRECTIONS.forEach((direction) => {
+                const [dr, dc] = direction;
+                const startRow = row - letterIndex * dr;
+                const startCol = col - letterIndex * dc;
+
+                if (
+                  canPlaceWord(grid, upperWord, startRow, startCol, direction)
+                ) {
+                  opportunities.push({
+                    row: startRow,
+                    col: startCol,
+                    direction: direction,
+                    intersectionRow: row,
+                    intersectionCol: col,
+                    intersectionIndex: letterIndex,
+                  });
+                }
+              });
+            }
+          }
+        }
+      }
+
+      return opportunities;
+    },
+    [gridSize, canPlaceWord]
+  );
+
   const generateGrid = useCallback(() => {
     // Initialize empty grid
     const newGrid = Array(gridSize)
@@ -85,7 +132,30 @@ function App() {
       let placed = false;
       let attempts = 0;
 
-      while (!placed && attempts < 100) {
+      // First, try to find intersection opportunities
+      const intersectionOps = findIntersectionOpportunities(newGrid, upperWord);
+
+      if (intersectionOps.length > 0) {
+        // Randomly choose one of the intersection opportunities
+        const chosenOp =
+          intersectionOps[Math.floor(Math.random() * intersectionOps.length)];
+        const positions = placeWord(
+          newGrid,
+          upperWord,
+          chosenOp.row,
+          chosenOp.col,
+          chosenOp.direction
+        );
+        newPlacedWords.push({
+          word: upperWord,
+          positions,
+          direction: chosenOp.direction,
+        });
+        placed = true;
+      }
+
+      // If no intersection found, try random placement
+      while (!placed && attempts < 200) {
         const direction =
           DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
         const row = Math.floor(Math.random() * gridSize);
@@ -117,7 +187,7 @@ function App() {
     setPlacedWords(newPlacedWords);
     setFoundWords(new Set());
     setSelectedCells([]);
-  }, [words, gridSize, canPlaceWord, placeWord]);
+  }, [words, gridSize, canPlaceWord, placeWord, findIntersectionOpportunities]);
 
   const handleWordsChange = (e) => {
     setInputText(e.target.value);
