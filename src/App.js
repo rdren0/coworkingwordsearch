@@ -1,6 +1,17 @@
 import React, { useState, useCallback } from "react";
 import "./App.css";
 
+const DIRECTIONS = [
+  [0, 1], // horizontal
+  [1, 0], // vertical
+  [1, 1], // diagonal down-right
+  [1, -1], // diagonal down-left
+  [0, -1], // horizontal backwards
+  [-1, 0], // vertical backwards
+  [-1, -1], // diagonal up-left
+  [-1, 1], // diagonal up-right
+];
+
 function App() {
   const [words, setWords] = useState([
     "FOODSPIRE",
@@ -21,45 +32,37 @@ function App() {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedCells, setSelectedCells] = useState([]);
 
-  const DIRECTIONS = [
-    [0, 1], // horizontal
-    [1, 0], // vertical
-    [1, 1], // diagonal down-right
-    [1, -1], // diagonal down-left
-    [0, -1], // horizontal backwards
-    [-1, 0], // vertical backwards
-    [-1, -1], // diagonal up-left
-    [-1, 1], // diagonal up-right
-  ];
-
   const generateRandomLetter = () => {
     return String.fromCharCode(65 + Math.floor(Math.random() * 26));
   };
 
-  const canPlaceWord = (grid, word, row, col, direction) => {
-    const [dr, dc] = direction;
+  const canPlaceWord = useCallback(
+    (grid, word, row, col, direction) => {
+      const [dr, dc] = direction;
 
-    for (let i = 0; i < word.length; i++) {
-      const newRow = row + i * dr;
-      const newCol = col + i * dc;
+      for (let i = 0; i < word.length; i++) {
+        const newRow = row + i * dr;
+        const newCol = col + i * dc;
 
-      if (
-        newRow < 0 ||
-        newRow >= gridSize ||
-        newCol < 0 ||
-        newCol >= gridSize
-      ) {
-        return false;
+        if (
+          newRow < 0 ||
+          newRow >= gridSize ||
+          newCol < 0 ||
+          newCol >= gridSize
+        ) {
+          return false;
+        }
+
+        if (grid[newRow][newCol] !== "" && grid[newRow][newCol] !== word[i]) {
+          return false;
+        }
       }
+      return true;
+    },
+    [gridSize]
+  );
 
-      if (grid[newRow][newCol] !== "" && grid[newRow][newCol] !== word[i]) {
-        return false;
-      }
-    }
-    return true;
-  };
-
-  const placeWord = (grid, word, row, col, direction) => {
+  const placeWord = useCallback((grid, word, row, col, direction) => {
     const [dr, dc] = direction;
     const positions = [];
 
@@ -71,7 +74,7 @@ function App() {
     }
 
     return positions;
-  };
+  }, []);
 
   const generateGrid = useCallback(() => {
     // Initialize empty grid
@@ -118,13 +121,13 @@ function App() {
     setPlacedWords(newPlacedWords);
     setFoundWords(new Set());
     setSelectedCells([]);
-  }, [words, gridSize]);
+  }, [words, gridSize, canPlaceWord, placeWord, DIRECTIONS, canPlaceWord]);
 
   const handleWordsChange = (e) => {
     setInputText(e.target.value);
   };
 
-  const processWords = () => {
+  const processWords = useCallback(() => {
     const allWords = inputText
       .split(/[,\n]/)
       .map((word) => word.trim().toUpperCase())
@@ -135,7 +138,7 @@ function App() {
 
     setWords(validWords);
     setFilteredWords(tooLongWords);
-  };
+  }, [inputText, gridSize]);
 
   const getCellKey = (row, col) => `${row}-${col}`;
 
@@ -228,7 +231,7 @@ function App() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [inputText, gridSize]);
+  }, [processWords]);
 
   return (
     <div className="App">
