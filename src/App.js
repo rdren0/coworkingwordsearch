@@ -432,6 +432,20 @@ function App() {
               </div>
             ))}
           </div>
+
+          {/* Plain Text Display */}
+          {grid.length > 0 && (
+            <div className="plain-text-section">
+              <h3>Plain Text (Copy & Paste):</h3>
+              <div className="plain-text-grid">
+                {grid.map((row, index) => (
+                  <div key={index} className="plain-text-row">
+                    {row.join("")}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
