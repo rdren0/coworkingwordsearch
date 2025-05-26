@@ -121,19 +121,19 @@ function App() {
     setPlacedWords(newPlacedWords);
     setFoundWords(new Set());
     setSelectedCells([]);
-  }, [words, gridSize, DIRECTIONS]);
+  }, [words, gridSize, DIRECTIONS, canPlaceWord, placeWord]);
 
   const handleWordsChange = (e) => {
     setInputText(e.target.value);
   };
 
-  const processWords = () => {
+  const processWords = useCallback(() => {
     const wordList = inputText
       .split(/[,\n]/)
       .map((word) => word.trim().toUpperCase())
       .filter((word) => word.length > 0 && word.length <= gridSize);
     setWords(wordList);
-  };
+  }, [inputText, gridSize]);
 
   const getCellKey = (row, col) => `${row}-${col}`;
 
