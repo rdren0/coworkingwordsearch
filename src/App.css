@@ -79,6 +79,15 @@ h1 {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.word-limit-info {
+  margin-bottom: 4px;
+}
+
+.word-limit-info small {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
 .generate-btn {
   width: 100%;
   background-color: #2563eb;
@@ -122,6 +131,20 @@ h1 {
   background-color: #dcfce7;
   color: #166534;
   text-decoration: line-through;
+}
+
+.word-item.filtered-word {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.filtered-words h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #dc2626;
+  margin-top: 0;
 }
 
 .stats {

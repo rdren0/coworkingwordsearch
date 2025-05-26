@@ -10,14 +10,11 @@ function App() {
     "LEXI",
   ]);
   const [inputText, setInputText] = useState(
-    "FOODSPIRE",
-    "ARTORIAS",
-    "SERAPHINE",
-    "PESTO",
-    "LEXI"
+    "FOODSPIRE, ARTORIAS, SERAPHINE, PESTO, LEXI"
   );
   const [gridSize, setGridSize] = useState(10);
   const [textSize, setTextSize] = useState(14);
+  const [filteredWords, setFilteredWords] = useState([]);
   const [grid, setGrid] = useState([]);
   const [placedWords, setPlacedWords] = useState([]);
   const [foundWords, setFoundWords] = useState(new Set());
@@ -121,19 +118,24 @@ function App() {
     setPlacedWords(newPlacedWords);
     setFoundWords(new Set());
     setSelectedCells([]);
-  }, [words, gridSize, DIRECTIONS, canPlaceWord, placeWord]);
+  }, [words, gridSize]);
 
   const handleWordsChange = (e) => {
     setInputText(e.target.value);
   };
 
-  const processWords = useCallback(() => {
-    const wordList = inputText
+  const processWords = () => {
+    const allWords = inputText
       .split(/[,\n]/)
       .map((word) => word.trim().toUpperCase())
-      .filter((word) => word.length > 0 && word.length <= gridSize);
-    setWords(wordList);
-  }, [inputText, gridSize]);
+      .filter((word) => word.length > 0);
+
+    const validWords = allWords.filter((word) => word.length <= gridSize);
+    const tooLongWords = allWords.filter((word) => word.length > gridSize);
+
+    setWords(validWords);
+    setFilteredWords(tooLongWords);
+  };
 
   const getCellKey = (row, col) => `${row}-${col}`;
 
@@ -226,7 +228,7 @@ function App() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [inputText, processWords]);
+  }, [inputText, gridSize]);
 
   return (
     <div className="App">
@@ -269,6 +271,9 @@ function App() {
 
           <div className="input-section">
             <label>Enter words (comma or line separated):</label>
+            <div className="word-limit-info">
+              <small>Word length limit: {gridSize} characters</small>
+            </div>
             <textarea
               rows="6"
               value={inputText}
@@ -302,6 +307,19 @@ function App() {
               ))}
             </div>
           </div>
+
+          {filteredWords.length > 0 && (
+            <div className="filtered-words">
+              <h3>Words Too Long (Excluded):</h3>
+              <div className="words-grid">
+                {filteredWords.map((word, index) => (
+                  <div key={index} className="word-item filtered-word">
+                    {word} ({word.length} chars)
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="stats">
             <p>
