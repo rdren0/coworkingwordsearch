@@ -121,7 +121,7 @@ function App() {
     setPlacedWords(newPlacedWords);
     setFoundWords(new Set());
     setSelectedCells([]);
-  }, [words, gridSize]);
+  }, [words, gridSize, DIRECTIONS]);
 
   const handleWordsChange = (e) => {
     setInputText(e.target.value);
@@ -226,7 +226,7 @@ function App() {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [inputText]);
+  }, [inputText, processWords]);
 
   return (
     <div className="App">
