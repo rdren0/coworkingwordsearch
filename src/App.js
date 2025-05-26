@@ -26,9 +26,29 @@ function App() {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedCells, setSelectedCells] = useState([]);
 
-  const generateRandomLetter = () => {
-    return String.fromCharCode(65 + Math.floor(Math.random() * 26));
-  };
+  const generateRandomLetter = useCallback(() => {
+    const consonants = "BCDFGHJKLMNPQRSTVWXYZ";
+    const vowels = "AEIOU";
+
+    if (gridSize <= 8) {
+      // 8x8 or smaller: NO vowels in filler
+      return consonants[Math.floor(Math.random() * consonants.length)];
+    } else if (gridSize <= 10) {
+      // 9x9 or 10x10: Small percentage of vowels (15%)
+      if (Math.random() < 0.15) {
+        return vowels[Math.floor(Math.random() * vowels.length)];
+      } else {
+        return consonants[Math.floor(Math.random() * consonants.length)];
+      }
+    } else {
+      // 11x11 or larger: Normal vowel occurrence (~19% to match English)
+      if (Math.random() < 0.19) {
+        return vowels[Math.floor(Math.random() * vowels.length)];
+      } else {
+        return consonants[Math.floor(Math.random() * consonants.length)];
+      }
+    }
+  }, [gridSize]);
 
   const canPlaceWord = useCallback(
     (grid, word, row, col, direction) => {
@@ -194,7 +214,14 @@ function App() {
     setPlacedWords(newPlacedWords);
     setFoundWords(new Set());
     setSelectedCells([]);
-  }, [words, gridSize, canPlaceWord, placeWord, findIntersectionOpportunities]);
+  }, [
+    words,
+    gridSize,
+    canPlaceWord,
+    placeWord,
+    findIntersectionOpportunities,
+    generateRandomLetter,
+  ]);
 
   const handleWordsChange = (e) => {
     setInputText(e.target.value);
