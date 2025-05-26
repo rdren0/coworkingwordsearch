@@ -10,7 +10,11 @@ function App() {
     "LEXI",
   ]);
   const [inputText, setInputText] = useState(
-    "REACT, JAVASCRIPT, CODE, WEB, HTML"
+    "FOODSPIRE",
+    "ARTORIAS",
+    "SERAPHINE",
+    "PESTO",
+    "LEXI"
   );
   const [gridSize, setGridSize] = useState(10);
   const [textSize, setTextSize] = useState(14);
