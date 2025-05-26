@@ -121,7 +121,7 @@ function App() {
     setPlacedWords(newPlacedWords);
     setFoundWords(new Set());
     setSelectedCells([]);
-  }, [words, gridSize, canPlaceWord, placeWord, DIRECTIONS, canPlaceWord]);
+  }, [words, gridSize, canPlaceWord, placeWord, canPlaceWord]);
 
   const handleWordsChange = (e) => {
     setInputText(e.target.value);
