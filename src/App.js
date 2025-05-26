@@ -18,10 +18,10 @@ function App() {
     "ARTORIAS",
     "SERAPHINE",
     "PESTO",
-    "LEXI",
+    "HAZEL",
   ]);
   const [inputText, setInputText] = useState(
-    "FOODSPIRE, ARTORIAS, SERAPHINE, PESTO, LEXI"
+    "FOODSPIRE, ARTORIAS, SERAPHINE, PESTO, HAZEL"
   );
   const [gridSize, setGridSize] = useState(10);
   const [textSize, setTextSize] = useState(14);
