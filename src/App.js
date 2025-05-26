@@ -4,8 +4,6 @@ import "./App.css";
 const DIRECTIONS = [
   [0, 1], // horizontal (left to right)
   [1, 0], // vertical (top to bottom)
-  [0, -1], // horizontal backwards (right to left)
-  [-1, 0], // vertical backwards (bottom to top)
 ];
 
 function App() {
@@ -20,7 +18,7 @@ function App() {
     "FOODSPIRE, ARTORIAS, SERAPHINE, PESTO, HAZEL"
   );
   const [gridSize, setGridSize] = useState(10);
-  const [textSize, setTextSize] = useState(14);
+  const [textSize, setTextSize] = useState(20);
   const [filteredWords, setFilteredWords] = useState([]);
   const [grid, setGrid] = useState([]);
   const [placedWords, setPlacedWords] = useState([]);
@@ -132,30 +130,39 @@ function App() {
       let placed = false;
       let attempts = 0;
 
-      // First, try to find intersection opportunities
-      const intersectionOps = findIntersectionOpportunities(newGrid, upperWord);
+      // Randomly decide whether to try intersections (40% chance)
+      const shouldTryIntersection =
+        Math.random() < 0.4 && newPlacedWords.length > 0;
 
-      if (intersectionOps.length > 0) {
-        // Randomly choose one of the intersection opportunities
-        const chosenOp =
-          intersectionOps[Math.floor(Math.random() * intersectionOps.length)];
-        const positions = placeWord(
+      if (shouldTryIntersection) {
+        // Try to find intersection opportunities first
+        const intersectionOps = findIntersectionOpportunities(
           newGrid,
-          upperWord,
-          chosenOp.row,
-          chosenOp.col,
-          chosenOp.direction
+          upperWord
         );
-        newPlacedWords.push({
-          word: upperWord,
-          positions,
-          direction: chosenOp.direction,
-        });
-        placed = true;
+
+        if (intersectionOps.length > 0) {
+          // Randomly choose one of the intersection opportunities
+          const chosenOp =
+            intersectionOps[Math.floor(Math.random() * intersectionOps.length)];
+          const positions = placeWord(
+            newGrid,
+            upperWord,
+            chosenOp.row,
+            chosenOp.col,
+            chosenOp.direction
+          );
+          newPlacedWords.push({
+            word: upperWord,
+            positions,
+            direction: chosenOp.direction,
+          });
+          placed = true;
+        }
       }
 
-      // If no intersection found, try random placement
-      while (!placed && attempts < 200) {
+      // If no intersection attempted or found, try random placement
+      while (!placed && attempts < 150) {
         const direction =
           DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
         const row = Math.floor(Math.random() * gridSize);
@@ -327,11 +334,11 @@ function App() {
             <input
               type="number"
               min="8"
-              max="24"
+              max="36"
               value={textSize}
               onChange={(e) =>
                 setTextSize(
-                  Math.max(8, Math.min(24, parseInt(e.target.value) || 14))
+                  Math.max(8, Math.min(36, parseInt(e.target.value) || 20))
                 )
               }
               className="text-size-input"
