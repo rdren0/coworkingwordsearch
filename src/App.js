@@ -2,14 +2,10 @@ import React, { useState, useCallback } from "react";
 import "./App.css";
 
 const DIRECTIONS = [
-  [0, 1], // horizontal
-  [1, 0], // vertical
-  [1, 1], // diagonal down-right
-  [1, -1], // diagonal down-left
-  [0, -1], // horizontal backwards
-  [-1, 0], // vertical backwards
-  [-1, -1], // diagonal up-left
-  [-1, 1], // diagonal up-right
+  [0, 1], // horizontal (left to right)
+  [1, 0], // vertical (top to bottom)
+  [0, -1], // horizontal backwards (right to left)
+  [-1, 0], // vertical backwards (bottom to top)
 ];
 
 function App() {
