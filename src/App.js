@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import "./App.css";
+import { Filter } from "bad-words";
 
 const DIRECTIONS = [
   [0, 1], // horizontal (left to right)
@@ -20,11 +21,15 @@ function App() {
   const [gridSize, setGridSize] = useState(10);
   const [textSize, setTextSize] = useState(20);
   const [filteredWords, setFilteredWords] = useState([]);
+  const [profaneWords, setProfaneWords] = useState([]);
   const [grid, setGrid] = useState([]);
   const [placedWords, setPlacedWords] = useState([]);
   const [foundWords, setFoundWords] = useState(new Set());
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedCells, setSelectedCells] = useState([]);
+
+  // Initialize bad-words filter with useMemo to prevent recreation on every render
+  const filter = useMemo(() => new Filter(), []);
 
   const generateRandomLetter = useCallback(() => {
     const consonants = "BCDFGHJKLMNPQRSTVWXYZ";
@@ -233,12 +238,21 @@ function App() {
       .map((word) => word.trim().toUpperCase())
       .filter((word) => word.length > 0);
 
-    const validWords = allWords.filter((word) => word.length <= gridSize);
+    const validLengthWords = allWords.filter((word) => word.length <= gridSize);
     const tooLongWords = allWords.filter((word) => word.length > gridSize);
 
-    setWords(validWords);
+    // Filter out profane words using bad-words
+    const cleanWords = validLengthWords.filter(
+      (word) => !filter.isProfane(word.toLowerCase())
+    );
+    const flaggedProfane = validLengthWords.filter((word) =>
+      filter.isProfane(word.toLowerCase())
+    );
+
+    setWords(cleanWords);
     setFilteredWords(tooLongWords);
-  }, [inputText, gridSize]);
+    setProfaneWords(flaggedProfane);
+  }, [inputText, gridSize, filter]);
 
   const getCellKey = (row, col) => `${row}-${col}`;
 
@@ -421,6 +435,22 @@ function App() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {profaneWords.length > 0 && (
+            <div className="profane-words">
+              <h3>Inappropriate Words (Filtered):</h3>
+              <div className="words-grid">
+                {profaneWords.map((word, index) => (
+                  <div key={index} className="word-item profane-word">
+                    {word}
+                  </div>
+                ))}
+              </div>
+              <p className="filter-note">
+                These words were automatically filtered for appropriate content.
+              </p>
             </div>
           )}
 
